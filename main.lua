@@ -2,6 +2,7 @@ local Player = require "player"
 local i = require "inspect"
 local peachy = require "peachy"
 local GameState = require "gamestate"
+local Renderer = require "renderer"
 
 local anim
 
@@ -27,6 +28,7 @@ local player_state = GameState.new {
 
 
 function love.load()
+  Renderer.load()
   GameState.change(player_state)
 end
 
@@ -35,5 +37,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  GameState.draw()
+  Renderer.draw(function()
+    GameState.draw()
+  end)
 end
