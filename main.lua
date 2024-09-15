@@ -1,4 +1,4 @@
-local player = require"player"
+local player = require "player"
 local state = {
   player = player.init()
 }
