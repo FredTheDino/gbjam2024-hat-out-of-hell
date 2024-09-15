@@ -1,5 +1,5 @@
 local Player = require "player"
-local _p = require "pprint"
+local i = require "inspect"
 local peachy = require "peachy"
 local GameState = require "gamestate"
 
