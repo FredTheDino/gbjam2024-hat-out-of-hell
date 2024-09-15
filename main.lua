@@ -1,10 +1,15 @@
 local Player = require "player"
 local _p = require "pprint"
+local peachy = require "peachy"
 local GameState = require "gamestate"
+
+local anim
 
 -- Example GameState
 local player_state = GameState.new {
   enter = function()
+    local sprite = love.graphics.newImage("assets/sample.png")
+    anim = peachy.new("assets/sample.json", sprite, "loop")
     return {
       player = Player.init()
     }
@@ -12,9 +17,11 @@ local player_state = GameState.new {
   exit = function() end,
   update = function(state, inputs, dt)
     state.player:update(inputs, dt)
+    anim:update(dt)
   end,
   draw = function(state)
     state.player:draw()
+    anim:draw(100, 100)
   end
 }
 
