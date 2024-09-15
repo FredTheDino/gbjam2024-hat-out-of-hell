@@ -10,12 +10,11 @@ local player_state = GameState.new {
     }
   end,
   exit = function() end,
-  update = function(x, inputs, dt)
-    _p(inputs)
-    x.player:update(dt)
+  update = function(state, inputs, dt)
+    state.player:update(inputs, dt)
   end,
   draw = function(state)
-    love.graphics.rectangle("fill", 1, 1, 100, 100)
+    state.player:draw()
   end
 }
 
