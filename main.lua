@@ -11,6 +11,7 @@ local player_state = GameState.new {
   end,
   exit = function() end,
   update = function(x, inputs, dt)
+    _p(inputs)
     x.player:update(dt)
   end,
   draw = function(state)
