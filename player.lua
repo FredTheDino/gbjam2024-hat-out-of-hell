@@ -11,6 +11,7 @@ function Player.init()
   self.pos = Vector(0.0, 0.0)
   self.shoot_target = Vector(50, 50)
   self.shoot_speed = 100
+  self.shot_life = 1.0
   self.shoot1 = false
   self.shoot2 = false
   self.shoot1_cooldown = 0.0

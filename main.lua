@@ -19,17 +19,31 @@ local player_state = GameState.new {
   exit = function() end,
   update = function(state, inputs, dt)
     state.player:update(inputs, dt)
+
+    -- spawn shots
     if state.player.shoot1 then
       table.insert(state.player_shots, {
         pos = state.player.pos,
         vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
+        alive = state.player.shot_life
       })
     end
 
     -- update shots
     for _, shot in pairs(state.player_shots) do
       shot.pos = shot.pos + shot.vel * dt
+      shot.alive = shot.alive - dt
     end
+
+    -- remove unalive shots
+    local new_shots = {}
+    for _, shot in pairs(state.player_shots) do
+      if shot.alive > 0.0 then
+        table.insert(new_shots, shot)
+      end
+    end
+    state.player_shots = new_shots
+
     anim:update(dt)
   end,
   draw = function(state)
