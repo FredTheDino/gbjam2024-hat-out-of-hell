@@ -8,10 +8,10 @@ local scale = 3
 local shader
 
 local default_pallet = {
-  { 23 / 255, 42 / 255, 73 / 255, 1.0 }
-, { 255 / 255, 117 / 255, 102 / 255, 1.0 }
-, { 242 / 255, 218 / 255, 67 / 255, 1.0 }
-, { 215 / 255, 247 / 255, 226 / 255, 1.0 }
+  {  30 / 255,  20 / 255,  45 / 255, 1.0 }
+, { 100 / 255,  80 / 255,  62 / 255, 1.0 }
+, { 245 / 255, 245 / 255, 200 / 255, 1.0 }
+, { 185 / 255,  60 / 255, 185 / 255, 1.0 }
 }
 
 function Renderer.load()
@@ -35,11 +35,11 @@ function Renderer.draw(f, ...)
   -- Explicitly clear with different colors
   love.graphics.setShader(shader)
   love.graphics.setCanvas(buffer)
-  love.graphics.clear(unpack(default_pallet[1]))
+  love.graphics.clear(0.5, 0.5, 0.5, 1.0)
   f(...)
 
   love.graphics.setCanvas(canvas)
-  love.graphics.clear(unpack(default_pallet[2]))
+  love.graphics.clear(0.0, 0.0, 0.0, 1.0)
   local sw, sh = love.graphics.getDimensions()
   love.graphics.draw(buffer, (sw - (w * scale)) / 2, (sh - (h * scale)) / 2, 0, scale)
 end

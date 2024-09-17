@@ -4,7 +4,7 @@ extern vec4 w;
 extern vec4 h;
 
 bool roughly_equal(float a, float b) {
-  return abs(a - b) < 0.4;
+  return abs(a - b) < 0.2;
 }
 
 vec4 effect(vec4 _color, Image tex, vec2 texture_coords, vec2 screen_coords ){
@@ -17,7 +17,7 @@ vec4 effect(vec4 _color, Image tex, vec2 texture_coords, vec2 screen_coords ){
   if (!is_grayscale) {
     return h;
   }
-  if (color.r < 0.4) {
+  if (color.r < 0.3) {
     return b;
   }
   if (color.r < 0.8) {

@@ -307,7 +307,8 @@
    { "name": "death", "from": 22, "to": 31, "direction": "forward", "color": "#000000ff" }
   ],
   "layers": [
-   { "name": "Ghost", "opacity": 255, "blendMode": "normal" }
+   { "name": "Ghost", "opacity": 255, "blendMode": "normal" },
+   { "name": "Gun", "opacity": 255, "blendMode": "normal" }
   ],
   "slices": [
   ]
