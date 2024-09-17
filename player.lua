@@ -5,6 +5,7 @@ local peachy = require "peachy"
 local json = require "peachy.lib.json"
 
 local sprite
+local pixel
 local sprite_data
 
 ---@class Player
@@ -15,12 +16,13 @@ local Player = {}
 function Player.init()
   if not sprite then
     sprite = love.graphics.newImage("assets/player.png")
+    pixel = love.graphics.newImage("assets/pixel.png")
   end
   if not sprite_data then
     sprite_data = json.decode(love.filesystem.read("assets/player.json"))
   end
   local self = setmetatable({}, { __index = Player })
-  self.sprite  = peachy.new(sprite_data, sprite, "idle")
+  self.sprite = peachy.new(sprite_data, sprite, "idle")
   self.pos = Vector(0.0, 0.0)
   self.vel = Vector(0.0, 0.0)
   self.shoot_target = Vector(50, 50)
@@ -30,6 +32,16 @@ function Player.init()
   self.shoot2 = false
   self.shoot1_cooldown = 0.0
   self.shoot2_cooldown = 0.0
+
+  self.particles = love.graphics.newParticleSystem(pixel, 500)
+  self.particles:setParticleLifetime(0.5, 1.0)
+  self.particles:setEmissionRate(16.0)
+  self.particles:setEmissionArea("uniform", 8, 8)
+  self.particles:setDirection(math.pi / 2)
+  self.particles:setLinearDamping(0.2, 1.0)
+  self.particles:setSpeed(2.0, 4.0)
+  self.particles:start()
+
   return self
 end
 
@@ -50,6 +62,11 @@ function Player:update(inputs, dt)
   if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 then
     self.shoot1 = true
     self.shoot1_cooldown = 0.2
+    self.sprite:setTag("shoot") -- alt: "shoot-strong"
+    self.sprite:onLoop(function()
+      self.sprite:setTag("idle")
+      self.sprite:onLoop(function() end)
+    end)
   else
     self.shoot1 = false
   end
@@ -57,9 +74,12 @@ function Player:update(inputs, dt)
   self.shoot1_cooldown = math.max(0.0, self.shoot1_cooldown - dt)
   self.shoot2_cooldown = math.max(0.0, self.shoot2_cooldown - dt)
   self.sprite:update(dt)
+  self.particles:setPosition(self.pos.x + 8, self.pos.y + 8)
+  self.particles:update(dt)
 end
 
 function Player:draw()
+  love.graphics.draw(self.particles, 0, 0)
   self.sprite:draw(joe.round(self.pos.x), joe.round(self.pos.y))
 end
 
