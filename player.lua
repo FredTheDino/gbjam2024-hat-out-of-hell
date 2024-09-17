@@ -1,6 +1,11 @@
 local joe = require "joe"
 local Vector = require "vector"
 local inspect = require "inspect"
+local peachy = require "peachy"
+local json = require "peachy.lib.json"
+
+local sprite
+local sprite_data
 
 ---@class Player
 local Player = {}
@@ -8,7 +13,14 @@ local Player = {}
 
 ---@return Player
 function Player.init()
+  if not sprite then
+    sprite = love.graphics.newImage("assets/player.png")
+  end
+  if not sprite_data then
+    sprite_data = json.decode(love.filesystem.read("assets/player.json"))
+  end
   local self = setmetatable({}, { __index = Player })
+  self.sprite  = peachy.new(sprite_data, sprite, "idle")
   self.pos = Vector(0.0, 0.0)
   self.vel = Vector(0.0, 0.0)
   self.shoot_target = Vector(50, 50)
@@ -44,12 +56,11 @@ function Player:update(inputs, dt)
 
   self.shoot1_cooldown = math.max(0.0, self.shoot1_cooldown - dt)
   self.shoot2_cooldown = math.max(0.0, self.shoot2_cooldown - dt)
+  self.sprite:update(dt)
 end
 
-local size = 20
-
 function Player:draw()
-  love.graphics.rectangle("fill", self.pos.x - size / 2, self.pos.y - size / 2, size, size)
+  self.sprite:draw(joe.round(self.pos.x), joe.round(self.pos.y))
 end
 
 return Player
