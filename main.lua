@@ -3,6 +3,7 @@ local Player = require "player"
 local peachy = require "peachy"
 local GameState = require "gamestate"
 local Renderer = require "renderer"
+local Metronome = require "items.metronome"
 
 local anim
 
@@ -14,6 +15,7 @@ local player_state = GameState.new {
     return {
       player = Player.init(),
       player_shots = {},
+      metronome = Metronome.init(),
     }
   end,
   exit = function() end,
@@ -27,6 +29,7 @@ local player_state = GameState.new {
         vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
         alive = state.player.shot_life
       })
+      state.metronome:on_shoot()
     end
 
     -- update shots
@@ -45,6 +48,7 @@ local player_state = GameState.new {
     state.player_shots = new_shots
 
     anim:update(dt)
+    state.metronome:update(dt)
   end,
   draw = function(state)
     state.player:draw()
@@ -52,6 +56,7 @@ local player_state = GameState.new {
       love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, 5, 5)
     end
     anim:draw(100, 100)
+    state.metronome:draw(dt)
   end
 }
 
