@@ -45,7 +45,7 @@ function Player.init()
   return self
 end
 
-local speed = 40
+local speed = 80
 
 ---@param inputs Input
 ---@param dt number
@@ -59,6 +59,9 @@ function Player:update(inputs, dt)
   self.vel = self.vel * (0.1 ^ dt)
   self.pos = self.pos + self.vel * dt
 
+  if math.abs(self.vel.x) > 0.1 then
+    self.face_left = self.vel.x < 0
+  end
   if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 then
     self.shoot1 = true
     self.shoot1_cooldown = 0.2
@@ -80,7 +83,12 @@ end
 
 function Player:draw()
   love.graphics.draw(self.particles, 0, 0)
-  self.sprite:draw(joe.round(self.pos.x), joe.round(self.pos.y))
+
+  if self.face_left then
+    self.sprite:draw(16 + joe.round(self.pos.x), joe.round(self.pos.y), 0, -1)
+  else
+    self.sprite:draw(joe.round(self.pos.x), joe.round(self.pos.y), 0, 1)
+  end
 end
 
 return Player
