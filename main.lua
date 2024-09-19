@@ -4,18 +4,22 @@ local peachy = require "peachy"
 local GameState = require "gamestate"
 local Renderer = require "renderer"
 local Metronome = require "items.metronome"
+local Level = require "level"
+local Joe = require "joe"
 
-local anim
+
+local tiles
 
 -- Example GameState
 local player_state = GameState.new {
   enter = function()
-    local sprite = love.graphics.newImage("assets/sample.png")
-    anim = peachy.new("assets/sample.json", sprite, "loop")
+    tiles = tiles or love.graphics.newImage("assets/tileset.png")
+    local level = Level.new(require "assets.basic_map", tiles)
     return {
       player = Player.init(),
       player_shots = {},
       metronome = Metronome.init(),
+      level = level,
     }
   end,
   exit = function() end,
@@ -47,16 +51,18 @@ local player_state = GameState.new {
     end
     state.player_shots = new_shots
 
-    anim:update(dt)
     state.metronome:update(dt)
   end,
   draw = function(state)
-    state.player:draw()
+    love.graphics.push()
+    love.graphics.translate(Joe.round(-state.player.pos.x + Renderer.w / 2 - 8), Joe.round(-state.player.pos.y + Renderer.h / 2 - 8))
+    state.level:draw()
     for _, shot in pairs(state.player_shots) do
       love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, 5, 5)
     end
-    anim:draw(100, 100)
-    state.metronome:draw(dt)
+    state.player:draw()
+    state.metronome:draw()
+    love.graphics.pop()
   end
 }
 

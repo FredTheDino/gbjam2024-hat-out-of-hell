@@ -2,6 +2,8 @@ local Renderer = {}
 
 
 local w, h = 160, 144
+Renderer.w = w
+Renderer.h = h
 --- @class love.Texture
 local buffer
 local scale = 3
