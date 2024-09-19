@@ -50,9 +50,9 @@ function Metronome:draw()
 end
 
 function Metronome:on_shoot()
-  local beat_offset = self:_get_beat_offset()
   self.good_shot = self:_is_on_beat()
   self.last_shot = love.timer.getTime()
+  -- TODO: manipulate the shot in some way
 end
 
 return Metronome
