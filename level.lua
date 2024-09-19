@@ -21,18 +21,21 @@ function Self.new(map, tiles)
           if key ~= 0 then
             if keys[key] == nil then
               keys[key] = love.graphics.newQuad(
-                key * 16,
+                (key - 1) * 16,
                 0,
                 TILE_SIZE,
                 TILE_SIZE,
                 tiles
               )
             end
+            local x = (c.x + (i % c.width)) * TILE_SIZE
+            local y = (c.y + math.floor(i / c.height)) * TILE_SIZE
             table.insert(self.walls, {
               -- Grid coordinates
-              x = c.x + i % c.width,
-              y = c.y + math.floor(i / c.height),
-              quad = keys[key]
+              x = x,
+              y = y,
+              quad = keys[key],
+              key = key
             })
           end
         end
@@ -58,11 +61,7 @@ end
 
 function Self:draw()
   for _, w in pairs(self.walls) do
-    love.graphics.draw(self.tiles,
-      w.quad,
-      w.x * TILE_SIZE,
-      w.y * TILE_SIZE
-    )
+    love.graphics.draw(self.tiles, w.quad, w.x, w.y)
   end
 end
 

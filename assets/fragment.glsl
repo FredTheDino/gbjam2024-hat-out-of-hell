@@ -7,8 +7,8 @@ bool roughly_equal(float a, float b) {
   return abs(a - b) < 0.2;
 }
 
-vec4 effect(vec4 _color, Image tex, vec2 texture_coords, vec2 screen_coords ){
-  vec4 color = Texel(tex, texture_coords);
+vec4 effect(vec4 hue, Image tex, vec2 texture_coords, vec2 screen_coords ){
+  vec4 color = Texel(tex, texture_coords) * hue;
   if (color.a < 0.5) {
     return vec4(0.0, 0.0, 0.0, 0.0);
   }

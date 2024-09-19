@@ -13,7 +13,7 @@ local Player = {}
 
 
 ---@return Player
-function Player.init()
+function Player.init(at)
   if not sprite then
     sprite = love.graphics.newImage("assets/player.png")
     pixel = love.graphics.newImage("assets/pixel.png")
@@ -23,7 +23,7 @@ function Player.init()
   end
   local self = setmetatable({}, { __index = Player })
   self.sprite = peachy.new(sprite_data, sprite, "idle")
-  self.pos = Vector(0.0, 0.0)
+  self.pos = at or Vector(0.0, 0.0)
   self.vel = Vector(0.0, 0.0)
   self.shoot_target = Vector(50, 50)
   self.shoot_speed = 100

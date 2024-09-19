@@ -6,6 +6,7 @@ local Renderer = require "renderer"
 local Metronome = require "items.metronome"
 local Level = require "level"
 local Joe = require "joe"
+local inspect = require "inspect"
 
 
 local tiles
@@ -16,7 +17,7 @@ local player_state = GameState.new {
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
     return {
-      player = Player.init(),
+      player = Player.init(level.player_spawn),
       player_shots = {},
       metronome = Metronome.init(),
       level = level,
@@ -55,11 +56,16 @@ local player_state = GameState.new {
   end,
   draw = function(state)
     love.graphics.push()
-    love.graphics.translate(Joe.round(-state.player.pos.x + Renderer.w / 2 - 8), Joe.round(-state.player.pos.y + Renderer.h / 2 - 8))
+    love.graphics.translate(
+      Joe.round(-state.player.pos.x + Renderer.w / 2 - 8),
+      Joe.round(-state.player.pos.y + Renderer.h / 2 - 8)
+    )
     state.level:draw()
+    love.graphics.setColor(0, 0, 0)
     for _, shot in pairs(state.player_shots) do
-      love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, 5, 5)
+      love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, 4, 4)
     end
+    love.graphics.setColor(1, 1, 1)
     state.player:draw()
     state.metronome:draw()
     love.graphics.pop()
