@@ -69,7 +69,6 @@ function Self:contain(p, size, v)
       -- We are infact on walkable
       return p, v
     end
-    -- TODO: Double check these
     local diff_a = (lo - p):max(0)
     local diff_b = (hi - p):min(0)
     local diff = Vec.new(
