@@ -11,8 +11,8 @@ end
 function Fridge:update(_dt)
 end
 
-function Fridge:draw()
-  love.graphics.draw(self.sprite, 100, 100)
+function Fridge:draw(x, y)
+  love.graphics.draw(self.sprite, x, y)
 end
 
 -- TODO: call this
