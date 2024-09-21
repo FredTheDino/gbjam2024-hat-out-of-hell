@@ -14,4 +14,10 @@ function joe.round(a)
   return math.floor(a + 0.5)
 end
 
+--- @param a boolean
+--- @return number
+function joe.asInt(a)
+  if a then return 1.0 else return 0.0 end
+end
+
 return joe

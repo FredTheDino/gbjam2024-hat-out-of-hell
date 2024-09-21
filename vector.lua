@@ -180,6 +180,22 @@ function vector:clamp(min, max)
   return self
 end
 
+-- Clamp each axis between min
+function vector:min(min)
+  local x = math.min(min, self.x)
+  local y = math.min(min, self.y)
+  self:set(x,y)
+  return self
+end
+
+-- Clamp each axis between min
+function vector:max(max)
+  local x = math.max(max, self.x)
+  local y = math.max(max, self.y)
+  self:set(x,y)
+  return self
+end
+
 -- get the heading (direction) of a vector
 function vector:heading()
   return -math.atan2(self.y, self.x)
