@@ -33,6 +33,7 @@ function Player.init(at)
   self.shoot2 = false
   self.shoot1_cooldown = 0.0
   self.shoot2_cooldown = 0.0
+  self.items = {}
 
   self.particles = love.graphics.newParticleSystem(pixel, 500)
   self.particles:setParticleLifetime(0.5, 1.0)
