@@ -24,7 +24,7 @@ local player_state = GameState.new {
     local level = Level.new(require "assets.basic_map", tiles)
     return {
       player = Player.init(level.player_spawn),
-      enemies = { Slime.init(50, 50), Slime.init(150, 50) },
+      enemies = { Slime.init(50, 50) }, -- , Slime.init(150, 50) },
       player_shots = {},
       items = { Fridge.init() },
       level = level,
@@ -108,7 +108,7 @@ local player_state = GameState.new {
 
     -- update enemies
     for _, enemy in pairs(state.enemies) do
-      enemy:update(dt)
+      enemy:update(dt, state.player.pos)
     end
 
     -- update items
