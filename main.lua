@@ -9,8 +9,13 @@ local Level = require "level"
 local Joe = require "joe"
 local Vec = require "vector"
 local inspect = require "inspect"
+local Slime = require "slime"
+local Vector = require "vector"
 
 local tiles
+
+local shot_radius = 2
+local entity_radius = 8
 
 -- Example GameState
 local player_state = GameState.new {
@@ -19,6 +24,7 @@ local player_state = GameState.new {
     local level = Level.new(require "assets.basic_map", tiles)
     return {
       player = Player.init(level.player_spawn),
+      enemies = { Slime.init(50, 50), Slime.init(150, 50) },
       player_shots = {},
       items = { Fridge.init() },
       level = level,
@@ -33,6 +39,20 @@ local player_state = GameState.new {
       state.player.vel
     )
 
+    -- player should target the closest enemy
+    if #state.enemies > 0 then
+      local new_target_pos = state.enemies[1].pos
+      local new_target_dist = new_target_pos:dist_square(state.player.pos)
+      for _, enemy in pairs(state.enemies) do
+        local dist = enemy.pos:dist_square(state.player.pos)
+        if dist < new_target_dist then
+          new_target_pos = enemy.pos
+          new_target_dist = dist
+        end
+      end
+      state.player.shoot_target = new_target_pos + Vector.new(entity_radius, entity_radius)
+    end
+
     -- spawn shots
     if state.player.shoot1 then
       shot = {
@@ -40,6 +60,7 @@ local player_state = GameState.new {
         vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
         alive = state.player.shot_life,
         on_hit = {},
+        has_hit = false,
       }
       table.insert(state.player_shots, shot)
       for _, item in pairs(state.items) do
@@ -57,15 +78,39 @@ local player_state = GameState.new {
       shot.alive = shot.alive - dt
     end
 
+    -- check if player shots have hit enemies
+    local new_enemies = {}
+    for _, enemy in pairs(state.enemies) do
+      local is_dead = false
+      for _, shot in pairs(state.player_shots) do
+        local dx = math.abs((shot.pos.x + shot_radius) - (enemy.pos.x + entity_radius))
+        local dy = math.abs((shot.pos.y + shot_radius) - (enemy.pos.y + entity_radius))
+        if dx * dx + dy * dy < 2 + 8 then
+          is_dead = true
+          shot.has_hit = true
+        end
+      end
+      if not is_dead then
+        table.insert(new_enemies, enemy)
+      end
+    end
+    state.enemies = new_enemies
+
     -- remove unalive shots
     local new_shots = {}
     for _, shot in pairs(state.player_shots) do
-      if shot.alive > 0.0 then
+      if shot.alive > 0.0 and not shot.has_hit then
         table.insert(new_shots, shot)
       end
     end
     state.player_shots = new_shots
 
+    -- update enemies
+    for _, enemy in pairs(state.enemies) do
+      enemy:update(dt)
+    end
+
+    -- update items
     for _, item in pairs(state.items) do
       item:update(dt)
     end
@@ -79,12 +124,15 @@ local player_state = GameState.new {
     state.level:draw()
     love.graphics.setColor(0, 0, 0)
     for _, shot in pairs(state.player_shots) do
-      love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, 4, 4)
+      love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, shot_radius * 2, shot_radius * 2)
     end
     love.graphics.setColor(1, 1, 1)
     state.player:draw()
     for _, item in pairs(state.items) do
       item:draw()
+    end
+    for _, enemy in pairs(state.enemies) do
+      enemy:draw()
     end
     love.graphics.pop()
   end
