@@ -14,6 +14,7 @@ local tiles
 
 local shot_radius = 2
 local entity_radius = 8
+local item_frame = love.graphics.newImage("assets/item-frame.png")
 
 -- Example GameState
 
@@ -27,12 +28,15 @@ local player_state = GameState.new {
   enter = function()
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
-    local self = {
-      player = Player.init(level.player_spawn),
-      enemies = { Slime.init(Vec.new(50, 50)), Slime.init(Vec.new(150, 50)) },
+    local player = Player.init(level.player_spawn)
+    table.insert(player.items, Fridge.init())
+    table.insert(player.items, Fridge.init())
+    return {
+      player = player,
+      enemies = { Slime.init(50, 50), Slime.init(150, 50) },
       dead = {},
       player_shots = {},
-      items = { Fridge.init() },
+      items = {},
       level = level,
       timers = {},
     }
@@ -172,6 +176,12 @@ local player_state = GameState.new {
       enemy:draw()
     end
     love.graphics.pop()
+
+    -- draw currently picked up items
+    love.graphics.draw(item_frame, 0, Renderer.h - 17)
+    for i, item in pairs(state.player.items) do
+      item:draw((i - 1) * 16 + 1, Renderer.h - 17 + 1)
+    end
   end
 }
 
