@@ -1,13 +1,13 @@
 local Self = {}
-local Vec = require "vector"
 Self.__index = Self
-local inspect = require "inspect"
 local Joe = require "joe"
+local Vec = require "vector"
+local inspect = require "inspect"
 
 local TILE_SIZE = 16
 
 function Self.new(map, tiles)
-  local self = setmetatable({}, { __index = Self })
+  local self = setmetatable({}, Self)
   self.tiles = tiles
 
   local keys = {}

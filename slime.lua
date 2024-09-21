@@ -6,13 +6,13 @@ local Joe = require "joe"
 local Slime = {}
 
 ---@return Slime
-function Slime.init(x, y)
+function Slime.init(at)
   local self = setmetatable({}, { __index = Slime })
   self.sprite = love.graphics.newImage("assets/slime.png")
   self.anim = peachy.new("assets/slime.json", self.sprite, "idle")
   self:idle(1)
   self.dir = nil
-  self.pos = Vector.new(x, y)
+  self.pos = at or Vector.new()
   self.vel = Vector.new()
   self.gone = false
   return self
