@@ -29,6 +29,7 @@ local player_state = GameState.new {
     return {
       player = player,
       enemies = { Slime.init(50, 50), Slime.init(150, 50) },
+      dead = {},
       player_shots = {},
       items = {},
       level = level,
@@ -85,6 +86,7 @@ local player_state = GameState.new {
 
     -- check if player shots have hit enemies
     local new_enemies = {}
+    local new_dead = {}
     for _, enemy in pairs(state.enemies) do
       local is_dead = false
       for _, shot in pairs(state.player_shots) do
@@ -95,11 +97,20 @@ local player_state = GameState.new {
           shot.has_hit = true
         end
       end
-      if not is_dead then
+      if is_dead then
+        enemy:kill()
+        table.insert(new_dead, enemy)
+      else
         table.insert(new_enemies, enemy)
       end
     end
+    for _, thing in pairs(state.dead) do
+      if not thing.gone then
+        table.insert(new_dead, thing)
+      end
+    end
     state.enemies = new_enemies
+    state.dead = new_dead
 
     -- remove unalive shots
     local new_shots = {}
@@ -112,7 +123,12 @@ local player_state = GameState.new {
 
     -- update enemies
     for _, enemy in pairs(state.enemies) do
-      enemy:update(dt)
+      enemy:update(dt, state.player.pos)
+    end
+
+    -- update dead
+    for _, thing in pairs(state.dead) do
+      thing:update(dt, state.player.pos)
     end
 
     -- update items
@@ -137,6 +153,9 @@ local player_state = GameState.new {
       item:draw()
     end
     for _, enemy in pairs(state.enemies) do
+      enemy:draw()
+    end
+    for _, enemy in pairs(state.dead) do
       enemy:draw()
     end
     love.graphics.pop()
