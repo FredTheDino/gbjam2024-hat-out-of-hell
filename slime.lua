@@ -14,6 +14,7 @@ function Slime.init(x, y)
   self.dir = nil
   self.pos = Vector.new(x, y)
   self.vel = Vector.new()
+  self.gone = false
   return self
 end
 
@@ -33,6 +34,11 @@ function Slime:jump()
   end)
 end
 
+function Slime:kill()
+  self.anim:setTag("death")
+  self.anim:onLoop(function() self.gone = true end)
+end
+
 JUMP_SPEED = 50
 
 function Slime:update(dt, target)
@@ -48,6 +54,7 @@ function Slime:update(dt, target)
 end
 
 function Slime:draw()
+  if self.gone then return end
   self.anim:draw(Joe.round(self.pos.x), Joe.round(self.pos.y))
 end
 
