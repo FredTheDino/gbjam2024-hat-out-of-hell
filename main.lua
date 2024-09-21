@@ -1,6 +1,4 @@
 local Player = require "player"
---local _p = require "pprint"
-local peachy = require "peachy"
 local GameState = require "gamestate"
 local Renderer = require "renderer"
 local Metronome = require "items.metronome"
@@ -8,9 +6,9 @@ local Fridge = require "items.fridge"
 local Level = require "level"
 local Joe = require "joe"
 local Vec = require "vector"
-local inspect = require "inspect"
 local Slime = require "slime"
 local Vector = require "vector"
+local Timer = require "timer"
 
 local tiles
 
@@ -18,18 +16,28 @@ local shot_radius = 2
 local entity_radius = 8
 
 -- Example GameState
+
+local function spawn(state)
+  local at = Joe.random_from(state.level.spawns)
+  table.insert(state.enemies, Slime.init(at))
+  table.insert(state.timers, Timer.new(1, spawn))
+end
+
 local player_state = GameState.new {
   enter = function()
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
-    return {
+    local self = {
       player = Player.init(level.player_spawn),
-      enemies = { Slime.init(50, 50), Slime.init(150, 50) },
+      enemies = { Slime.init(Vec.new(50, 50)), Slime.init(Vec.new(150, 50)) },
       dead = {},
       player_shots = {},
       items = { Fridge.init() },
       level = level,
+      timers = {},
     }
+    spawn(self)
+    return self
   end,
   exit = function() end,
   update = function(state, inputs, dt)
@@ -57,7 +65,7 @@ local player_state = GameState.new {
 
     -- spawn shots
     if state.player.shoot1 then
-      shot = {
+      local shot = {
         pos = state.player.pos,
         vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
         alive = state.player.shot_life,
@@ -79,6 +87,15 @@ local player_state = GameState.new {
       shot.pos = shot.pos + shot.vel * dt
       shot.alive = shot.alive - dt
     end
+
+    local new_timers = {}
+    for _, timer in pairs(state.timers) do
+      timer:update(dt, state)
+      if not timer.done then
+        table.insert(new_timers, timer)
+      end
+    end
+    state.timers = new_timers
 
     -- check if player shots have hit enemies
     local new_enemies = {}
