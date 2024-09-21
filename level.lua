@@ -29,8 +29,8 @@ function Self.new(map, tiles)
                 tiles
               )
             end
-            local x = (c.x + (i % c.width)) * TILE_SIZE
-            local y = (c.y + math.floor(i / c.height)) * TILE_SIZE
+            local x = (c.x + ((i - 1) % c.width)) * TILE_SIZE
+            local y = (c.y + math.floor((i - 1) / c.height)) * TILE_SIZE
             table.insert(self.walls, {
               -- Grid coordinates
               x = x,
