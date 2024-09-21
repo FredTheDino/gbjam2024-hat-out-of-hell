@@ -7,6 +7,7 @@ local Metronome = require "items.metronome"
 local Fridge = require "items.fridge"
 local Level = require "level"
 local Joe = require "joe"
+local Vec = require "vector"
 local inspect = require "inspect"
 
 local tiles
@@ -26,6 +27,11 @@ local player_state = GameState.new {
   exit = function() end,
   update = function(state, inputs, dt)
     state.player:update(inputs, dt)
+    state.player.pos, state.player.vel = state.level:contain(
+      state.player.pos,
+      Vec.new(16, 16),
+      state.player.vel
+    )
 
     -- spawn shots
     if state.player.shoot1 then
