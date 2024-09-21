@@ -25,6 +25,7 @@ function Player.init(at)
   self.sprite = peachy.new(sprite_data, sprite, "idle")
   self.pos = at or Vector(0.0, 0.0)
   self.vel = Vector(0.0, 0.0)
+  self.can_shoot = false
   self.shoot_target = Vector(50, 50)
   self.shoot_speed = 100
   self.shot_life = 1.0
@@ -62,7 +63,7 @@ function Player:update(inputs, dt)
   if math.abs(self.vel.x) > 0.1 then
     self.face_left = self.vel.x < 0
   end
-  if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 then
+  if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 and self.can_shoot then
     self.shoot1 = true
     self.shoot1_cooldown = 0.2
     self.sprite:setTag("shoot") -- alt: "shoot-strong"

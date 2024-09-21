@@ -40,7 +40,8 @@ local player_state = GameState.new {
     )
 
     -- player should target the closest enemy
-    if #state.enemies > 0 then
+    state.player.can_shoot = #state.enemies ~= 0
+    if state.player.can_shoot then
       local new_target_pos = state.enemies[1].pos
       local new_target_dist = new_target_pos:dist_square(state.player.pos)
       for _, enemy in pairs(state.enemies) do
