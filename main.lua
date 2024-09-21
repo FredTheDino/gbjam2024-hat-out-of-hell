@@ -4,10 +4,10 @@ local peachy = require "peachy"
 local GameState = require "gamestate"
 local Renderer = require "renderer"
 local Metronome = require "items.metronome"
+local Fridge = require "items.fridge"
 local Level = require "level"
 local Joe = require "joe"
 local inspect = require "inspect"
-
 
 local tiles
 
@@ -19,7 +19,7 @@ local player_state = GameState.new {
     return {
       player = Player.init(level.player_spawn),
       player_shots = {},
-      metronome = Metronome.init(),
+      items = { Fridge.init() },
       level = level,
     }
   end,
@@ -29,13 +29,21 @@ local player_state = GameState.new {
 
     -- spawn shots
     if state.player.shoot1 then
-      table.insert(state.player_shots, {
+      shot = {
         pos = state.player.pos,
         vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
-        alive = state.player.shot_life
-      })
-      state.metronome:on_shoot()
+        alive = state.player.shot_life,
+        on_hit = {},
+      }
+      table.insert(state.player_shots, shot)
+      for _, item in pairs(state.items) do
+        if item.on_shoot1 then
+          item:on_shoot1(shot)
+        end
+      end
     end
+
+    -- TODO: if state.player.shoot2
 
     -- update shots
     for _, shot in pairs(state.player_shots) do
@@ -52,7 +60,9 @@ local player_state = GameState.new {
     end
     state.player_shots = new_shots
 
-    state.metronome:update(dt)
+    for _, item in pairs(state.items) do
+      item:update(dt)
+    end
   end,
   draw = function(state)
     love.graphics.push()
@@ -67,11 +77,12 @@ local player_state = GameState.new {
     end
     love.graphics.setColor(1, 1, 1)
     state.player:draw()
-    state.metronome:draw()
+    for _, item in pairs(state.items) do
+      item:draw()
+    end
     love.graphics.pop()
   end
 }
-
 
 function love.load()
   Renderer.load()
