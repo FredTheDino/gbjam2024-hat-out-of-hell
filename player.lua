@@ -28,11 +28,9 @@ function Player.init(at)
   self.vel = Vec(0.0, 0.0)
   self.shoot_target = Vec(50, 50)
   self.shoot_speed = 100
-  self.shot_life = 1.0
-  self.shoot1 = false
-  self.shoot2 = false
-  self.shoot1_cooldown = 0.0
-  self.shoot2_cooldown = 0.0
+  self.shot_life = 2.2
+  self.shoot_cooldown = 0.0
+  self.shoot_cooldown_time = 0.2
   self.hit_cooldown = 0.0
   self.hp = 2
   self.items = {}
@@ -74,8 +72,8 @@ function Player:update(inputs, dt, shots)
   if math.abs(self.vel.x) > 0.1 then
     self.face_left = self.vel.x < 0
   end
-  if inputs.a == 1.0 and self.shoot1_cooldown == 0.0 then
-    self.shoot1_cooldown = 0.2
+  if inputs.a == 1.0 and self.shoot_cooldown == 0.0 then
+    self.shoot_cooldown = self.shoot_cooldown_time
     self.sprite:setTag(Joe.iff(#self.items > 5, "shoot-strong", "shoot"))
     self.sprite:onLoop(function()
       self.sprite:setTag("idle")
@@ -95,8 +93,7 @@ function Player:update(inputs, dt, shots)
   end
 
   self.hit_cooldown = math.max(0.0, self.hit_cooldown - dt)
-  self.shoot1_cooldown = math.max(0.0, self.shoot1_cooldown - dt)
-  self.shoot2_cooldown = math.max(0.0, self.shoot2_cooldown - dt)
+  self.shoot_cooldown = math.max(0.0, self.shoot_cooldown - dt)
 end
 
 function Player:draw()

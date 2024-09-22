@@ -15,6 +15,8 @@ local Drill = require "items.drill"
 local Fork = require "items.fork"
 local ItemSlime = require "items.slime"
 local RadIso = require "items.radioactive_isotope"
+local Boomerang = require "items.boomerang"
+local Wave = require "items.wave"
 
 local tiles
 
@@ -33,11 +35,10 @@ local player_state = GameState.new {
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
-    table.insert(player.items, Fork.init())
-    table.insert(player.items, Fork.init())
-    table.insert(player.items, RadIso.init())
-    table.insert(player.items, RadIso.init())
-    table.insert(player.items, Fork.init())
+    table.insert(player.items, Wave.init())
+    table.insert(player.items, Wave.init())
+    table.insert(player.items, Wave.init())
+    table.insert(player.items, Wave.init())
     local self = {
       player = player,
       enemies = {},
