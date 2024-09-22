@@ -14,6 +14,7 @@ local Usa = require "items.usa"
 local Drill = require "items.drill"
 local Fork = require "items.fork"
 local ItemSlime = require "items.slime"
+local RadIso = require "items.radioactive_isotope"
 
 local tiles
 
@@ -34,10 +35,9 @@ local player_state = GameState.new {
     local player = Player.init(level.player_spawn)
     table.insert(player.items, Fork.init())
     table.insert(player.items, Fork.init())
+    table.insert(player.items, RadIso.init())
+    table.insert(player.items, RadIso.init())
     table.insert(player.items, Fork.init())
-    table.insert(player.items, Fork.init())
-    table.insert(player.items, ItemSlime.init())
-    table.insert(player.items, ItemSlime.init())
     local self = {
       player = player,
       enemies = {},
@@ -66,7 +66,7 @@ local player_state = GameState.new {
 
     -- update shots
     for _, shot in pairs(state.player_shots) do
-      shot:update(dt)
+      shot:update(dt, actions)
       local dp, dv = state.level:contain(
         shot:center() - shot:radius(),
         shot:radius() * 2,

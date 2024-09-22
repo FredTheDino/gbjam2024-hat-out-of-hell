@@ -75,6 +75,11 @@ function vector:clone()
 end
 
 -- get the magnitude of a vector
+function vector:random()
+  return new(1, 0):rotate(love.math.random(0, 2 * math.pi))
+end
+
+-- get the magnitude of a vector
 function vector:getmag()
   return math.sqrt(self.x ^ 2 + self.y ^ 2)
 end
@@ -102,7 +107,8 @@ end
 -- meta function to add vectors together
 -- ex: (vector(5,6) + vector(6,5)) is the same as vector(11,11)
 function vector.__add(a, b)
-  assert(isvector(a) and isvector(b), "add: wrong argument types: (expected <vector> and <vector>)" .. tostring(a) .. " and " .. tostring(b))
+  assert(isvector(a) and isvector(b),
+    "add: wrong argument types: (expected <vector> and <vector>)" .. tostring(a) .. " and " .. tostring(b))
   return new(a.x + b.x, a.y + b.y)
 end
 
@@ -191,7 +197,7 @@ end
 function vector:min(min)
   local x = math.min(min, self.x)
   local y = math.min(min, self.y)
-  self:set(x,y)
+  self:set(x, y)
   return self
 end
 
@@ -199,7 +205,7 @@ end
 function vector:max(max)
   local x = math.max(max, self.x)
   local y = math.max(max, self.y)
-  self:set(x,y)
+  self:set(x, y)
   return self
 end
 
