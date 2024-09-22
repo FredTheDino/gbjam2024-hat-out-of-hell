@@ -75,11 +75,6 @@ function vector:clone()
 end
 
 -- get the magnitude of a vector
-function vector:random()
-  return new(1, 0):rotate(love.math.random(0, 2 * math.pi))
-end
-
--- get the magnitude of a vector
 function vector:getmag()
   return math.sqrt(self.x ^ 2 + self.y ^ 2)
 end
@@ -149,9 +144,9 @@ function vector:__tostring()
 end
 
 -- get the distance between two vectors
-function vector.dist(a, b)
-  assert(isvector(a) and isvector(b), "dist: wrong argument types (expected <vector> and <vector>)")
-  return math.sqrt(vector.dist_square(a, b))
+function vector:dist(a)
+  assert(isvector(self) and isvector(a), "dist: wrong argument types (expected <vector> and <vector>)")
+  return math.sqrt(vector.dist_square(self, a))
 end
 
 function vector.dist_square(a, b)

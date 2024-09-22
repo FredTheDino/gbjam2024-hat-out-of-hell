@@ -7,25 +7,6 @@ local Vec = require "vector"
 local Slime = require "slime"
 local Timer = require "timer"
 
--- Items
-local Metronome = require "items.metronome"
-local Fridge = require "items.fridge"
-local Usa = require "items.usa"
-local Drill = require "items.drill"
-local Fork = require "items.fork"
-local ItemSlime = require "items.slime"
-local RadIso = require "items.radioactive_isotope"
-local Boomerang = require "items.boomerang"
-local Wave = require "items.wave"
---
-local Sneakers = require "items.sneakers"
-local Ufo = require "items.ufo"
-local Clip = require "items.clip"
-local Dupe = require "items.dupe"
-local Heart = require "items.heart"
---
-local Identity = require "items.identity"
-
 local tiles
 
 local item_frame = love.graphics.newImage("assets/item-frame.png")
@@ -43,27 +24,6 @@ local player_state = GameState.new {
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
-    player:pickup(Fridge.init())
     local self = {
       player = player,
       enemies = {},
@@ -71,12 +31,15 @@ local player_state = GameState.new {
       player_shots = {},
       level = level,
       timers = {},
+      kills = 0,
     }
     spawn(self)
     return self
   end,
   exit = function() end,
   update = function(state, inputs, dt)
+    state.level:update(dt, state.player)
+
     state.player:update(inputs, dt, state.player_shots)
     local pp, vv                       = state.level:contain(
       state.player.pos,
@@ -84,7 +47,6 @@ local player_state = GameState.new {
       state.player.vel
     )
     state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
-
 
     local actions = {
       shoot = function(s) table.insert(state.player_shots, s) end
@@ -130,6 +92,7 @@ local player_state = GameState.new {
         ::continue::
       end
       if enemy:is_dead() then
+        state.kills = state.kills + 1
         table.insert(new_dead, enemy)
       else
         local pp, vv = state.level:contain(
@@ -162,7 +125,13 @@ local player_state = GameState.new {
 
     -- player vs enemies
     for _, enemy in pairs(state.enemies) do
-      state.player:check_hit(enemy)
+      if state.player:check_hit(enemy) then
+        Renderer.pallet(unpack(Renderer.hit_pallet))
+        table.insert(state.timers, Timer.new(0.2, function()
+          Renderer.pallet(unpack(Renderer.default_pallet))
+        end))
+        break
+      end
     end
 
     -- update enemies
@@ -209,7 +178,9 @@ local player_state = GameState.new {
     for i, item in pairs(state.player.items) do
       item:draw(1 + i * step, Renderer.h - 16 + 1)
     end
-    -- draw hp 
+    -- draw hp
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.printf(tostring(state.kills), 0, 0, 100, "left")
     love.graphics.setColor(1, 0, 0)
     for i = 0, state.player.hp - 1, 1 do
       love.graphics.rectangle("fill", i * 3, Renderer.h - 16, 2, 2)

@@ -143,7 +143,9 @@ function Player:check_hit(other)
         self.dead = true
       end)
     end
+    return true
   end
+  return false
 end
 
 return Player
