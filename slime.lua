@@ -5,6 +5,10 @@ local Joe = require "joe"
 ---@class Slime
 local Slime = {}
 
+local function jump_speed()
+  return love.math.random(45, 60)
+end
+
 ---@return Slime
 function Slime.init(at)
   local self = setmetatable({}, { __index = Slime })
@@ -14,6 +18,7 @@ function Slime.init(at)
   self.dir = nil
   self.pos = at or Vector.new()
   self.vel = Vector.new()
+  self.speed = jump_speed()
   self.gone = false
   return self
 end
@@ -39,15 +44,13 @@ function Slime:kill()
   self.anim:onLoop(function() self.gone = true end)
 end
 
-JUMP_SPEED = 50
-
 function Slime:update(dt, target)
   self.anim:update(dt)
   self.dir = self.dir or (target - self.pos)
   self.vel = Vector.new()
   if self.anim.tagName == "jump" and self.dir ~= nil then
     if 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
-      self.vel = self.dir:norm() * JUMP_SPEED
+      self.vel = self.dir:norm() * self.speed
     end
   end
   self.pos = self.pos + self.vel * dt
