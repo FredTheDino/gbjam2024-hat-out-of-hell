@@ -39,23 +39,18 @@ local player_state = GameState.new {
       level = level,
       timers = {},
     }
-    -- spawn(self)
+    spawn(self)
     return self
   end,
   exit = function() end,
   update = function(state, inputs, dt)
-    state.player:update(inputs, dt)
+    state.player:update(inputs, dt, state.player_shots)
     local pp, vv                       = state.level:contain(
       state.player.pos,
       Vec.new(16, 16),
       state.player.vel
     )
     state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
-
-    -- spawn shots
-    state.player:shoot(state.items, state.player_shots)
-
-    -- TODO: if state.player.shoot2
 
     -- update shots
     for _, shot in pairs(state.player_shots) do
@@ -78,8 +73,7 @@ local player_state = GameState.new {
     for _, enemy in pairs(state.enemies) do
       local is_dead = false
       for _, shot in pairs(state.player_shots) do
-        local d = shot.pos - enemy:center()
-        if d:magSq() < (SHOT_RADIUS + enemy:radius().x) ^ 2 then
+        if shot.pos:dist_square(enemy:center()) < SHOT_RADIUS ^ 2 + enemy:radius().x ^ 2 then
           is_dead = true
           shot.has_hit = true
         end
@@ -115,6 +109,11 @@ local player_state = GameState.new {
       end
     end
     state.player_shots = new_shots
+
+    -- player vs enemies
+    for _, enemy in pairs(state.enemies) do
+      state.player:check_hit(enemy)
+    end
 
     -- update enemies
     for _, enemy in pairs(state.enemies) do
