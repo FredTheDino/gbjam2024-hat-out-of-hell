@@ -3,7 +3,7 @@ local Self = {}
 ---@return Self
 function Self.init()
   local self = setmetatable({}, { __index = Self })
-  self.sprite = love.graphics.newImage("assets/fridge.png")
+  self.sprite = love.graphics.newImage("assets/usa.png")
   return self
 end
 

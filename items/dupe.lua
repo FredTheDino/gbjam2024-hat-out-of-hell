@@ -4,7 +4,7 @@ local Joe = require "joe"
 ---@return Self
 function Self.init()
   local self = setmetatable({}, { __index = Self })
-  self.sprite = love.graphics.newImage("assets/fridge.png")
+  self.sprite = love.graphics.newImage("assets/dupe.png")
   self.on_pickup = function(_, player)
     if #player.items > 0 then
       local other = player.items[#player.items]

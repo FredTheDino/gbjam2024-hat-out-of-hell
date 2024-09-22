@@ -102,7 +102,7 @@ function Self:update(dt, player)
   end
 
   for _, a in pairs(self.alters) do
-    if a.item and a.pos:dist_square(player.pos) < 2 * 16 ^ 2 then
+    if a.item and a.pos:dist_square(player.pos) < 16 ^ 2 then
       player:pickup(a.item)
       for _, a in pairs(self.alters) do
         a:disable()
