@@ -24,9 +24,7 @@ function Self:update(dt)
 end
 
 function Self:hit(other)
-  print("X")
-  for i, f in pairs(self.on_hit) do
-    print("X", i)
+  for _, f in pairs(self.on_hit) do
     f(other)
   end
 end

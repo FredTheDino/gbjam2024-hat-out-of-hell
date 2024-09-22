@@ -74,7 +74,6 @@ local player_state = GameState.new {
         if shot.has_hit then goto continue end
         if enemy:is_dead() then goto continue end
         if shot.pos:dist_square(enemy:center()) < shot.radius ^ 2 + enemy:radius().x ^ 2 then
-          print("HIT!")
           shot:hit(enemy)
           shot.has_hit = true
         end
