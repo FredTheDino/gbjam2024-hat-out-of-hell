@@ -9,18 +9,25 @@ local buffer
 local scale = 3
 local shader
 
-local default_pallet = {
-  {  30 / 255,  20 / 255,  45 / 255, 1.0 }
-, { 100 / 255,  80 / 255,  62 / 255, 1.0 }
-, { 245 / 255, 245 / 255, 200 / 255, 1.0 }
-, { 185 / 255,  60 / 255, 185 / 255, 1.0 }
+Renderer.default_pallet = {
+  { 30 / 255,  20 / 255,  45 / 255,  1.0 },
+  { 100 / 255, 80 / 255,  62 / 255,  1.0 },
+  { 245 / 255, 245 / 255, 200 / 255, 1.0 },
+  { 185 / 255, 60 / 255,  185 / 255, 1.0 }
+}
+
+Renderer.hit_pallet = {
+  { 30 / 255,  20 / 255,  45 / 255,  1.0 },
+  { 100 / 255, 80 / 255,  62 / 255,  1.0 },
+  { 245 / 255, 245 / 255, 200 / 255, 1.0 },
+  { 185 / 255, 60 / 255, 60 / 255,  1.0 }
 }
 
 function Renderer.load()
   buffer = love.graphics.newCanvas(w, h)
   buffer:setFilter("nearest", "nearest")
   shader = love.graphics.newShader("assets/fragment.glsl")
-  Renderer.pallet(default_pallet[1], default_pallet[2], default_pallet[3], default_pallet[4])
+  Renderer.pallet(unpack(Renderer.default_pallet))
   love.window.setMode(w * scale, h * scale)
 end
 
@@ -43,7 +50,7 @@ function Renderer.draw(f, ...)
   love.graphics.setCanvas(canvas)
   love.graphics.clear(0.0, 0.0, 0.0, 1.0)
   local sw, sh = love.graphics.getDimensions()
-  love.graphics.draw(buffer, (sw - (w * scale)) / 2, (sh - (h * scale)) / 2, 0, scale)
+  love.graphics.draw(buffer, math.floor((sw - (w * scale)) / 2), math.floor((sh - (h * scale)) / 2), 0, scale)
 end
 
 return Renderer

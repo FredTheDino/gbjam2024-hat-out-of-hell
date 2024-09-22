@@ -30,5 +30,14 @@ function joe.random_from(t)
     return t[math.random(1, #t)]
 end
 
+function joe.clone(t)
+  if t == nil then return nil end
+  local out = {}
+  for i, x in pairs(t) do
+    out[i] = x
+  end
+  return setmetatable(out, getmetatable(t))
+end
+
 return joe
 

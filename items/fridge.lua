@@ -15,11 +15,15 @@ function Fridge:draw(x, y)
   love.graphics.draw(self.sprite, x, y)
 end
 
--- TODO: call this
-function Fridge:on_shoot1(shot)
-  table.insert(shot.on_hit, function()
-    print("you just got fridged")
-  end)
+function Fridge:on_shoot(shots)
+  for _, s in pairs(shots) do
+    table.insert(s.on_hit, function(_, other)
+      if other then
+        other.slow = other.slow + 1
+      end
+    end)
+  end
+  return shots
 end
 
 return Fridge

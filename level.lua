@@ -2,6 +2,7 @@ local Self = {}
 Self.__index = Self
 local Joe = require "joe"
 local Vec = require "vector"
+local Alter = require "alter"
 local inspect = require "inspect"
 
 local TILE_SIZE = 16
@@ -14,6 +15,7 @@ function Self.new(map, tiles)
 
   self.walls = {}
   self.spawns = {}
+  self.alters = {}
   self.walkables = {}
   for _, layer in pairs(map.layers) do
     if layer.type == "tilelayer" then
@@ -48,6 +50,8 @@ function Self.new(map, tiles)
           self.player_spawn = at
         elseif o.name == "spawn" and o.shape == "point" then
           table.insert(self.spawns, at)
+        elseif o.name == "altar" and o.shape == "point" then
+          table.insert(self.alters, Alter.new(at))
         elseif o.name == "walkable" and o.shape == "rectangle" then
           table.insert(self.walkables, {
             at = at,
@@ -92,9 +96,30 @@ function Self:contain(p, size, v, bounce)
   return correction, Vec.new(maybe_bounce(correction.x), maybe_bounce(correction.y))
 end
 
+function Self:spawn_items()
+  for _, w in pairs(self.alters) do w:enable() end
+end
+
+function Self:update(dt, player)
+  for _, w in pairs(self.alters) do w:update(dt) end
+
+  for _, a in pairs(self.alters) do
+    if a.item and a.pos:dist_square(player.pos) < 16 ^ 2 then
+      player:pickup(a.item)
+      for _, a in pairs(self.alters) do
+        a:disable()
+      end
+      break
+    end
+  end
+end
+
 function Self:draw()
   for _, w in pairs(self.walls) do
     love.graphics.draw(self.tiles, w.quad, w.x, w.y)
+  end
+  for _, w in pairs(self.alters) do
+    w:draw()
   end
 end
 

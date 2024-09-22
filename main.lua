@@ -1,24 +1,23 @@
 local Player = require "player"
 local GameState = require "gamestate"
 local Renderer = require "renderer"
-local Metronome = require "items.metronome"
-local Fridge = require "items.fridge"
 local Level = require "level"
 local Joe = require "joe"
 local Vec = require "vector"
 local Slime = require "slime"
-local Vector = require "vector"
 local Timer = require "timer"
+local Sound = require "sound"
 
 local tiles
 
-local SHOT_RADIUS = 2
 local item_frame = love.graphics.newImage("assets/item-frame.png")
+local sounds
 
 -- Example GameState
 
 local function spawn(state)
-  local at = Joe.random_from(state.level.spawns)
+  if not state.player:is_alive() then return end
+  local at = Joe.random_from(state.level.spawns) + Vec(love.math.random(-3, 3), love.math.random(-3, 3))
   table.insert(state.enemies, Slime.init(at))
   table.insert(state.timers, Timer.new(1, spawn))
 end
@@ -26,25 +25,27 @@ end
 local player_state = GameState.new {
   enter = function()
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
+
+    Sound.load()
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
-    table.insert(player.items, Fridge.init())
-    table.insert(player.items, Fridge.init())
     local self = {
-      player = Player.init(level.player_spawn),
-      enemies = { Slime.init(Vec.new(50, 50)) },
+      player = player,
+      enemies = {},
       dead = {},
       player_shots = {},
-      items = {},
       level = level,
       timers = {},
+      kills = 0,
     }
-    -- spawn(self)
+    spawn(self)
     return self
   end,
   exit = function() end,
   update = function(state, inputs, dt)
-    state.player:update(inputs, dt)
+    state.level:update(dt, state.player)
+
+    state.player:update(inputs, dt, state.player_shots)
     local pp, vv                       = state.level:contain(
       state.player.pos,
       Vec.new(16, 16),
@@ -52,15 +53,25 @@ local player_state = GameState.new {
     )
     state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
 
-    -- spawn shots
-    state.player:shoot(state.items, state.player_shots)
-
-    -- TODO: if state.player.shoot2
+    local actions                      = {
+      shoot = function(s) table.insert(state.player_shots, s) end
+    }
 
     -- update shots
     for _, shot in pairs(state.player_shots) do
-      shot.pos = shot.pos + shot.vel * dt
-      shot.alive = shot.alive - dt
+      shot:update(dt, actions)
+      local dp, dv = state.level:contain(
+        shot:center() - shot:radius(),
+        shot:radius() * 2,
+        shot.vel,
+        -1
+      )
+      if dp.x ~= 0 or dp.y ~= 0 then
+        shot.pos = shot.pos + dp
+        shot.vel = shot.vel * dv
+        shot.has_hit = true
+        shot:hit(nil, actions)
+      end
     end
 
     local new_timers = {}
@@ -76,16 +87,20 @@ local player_state = GameState.new {
     local new_enemies = {}
     local new_dead = {}
     for _, enemy in pairs(state.enemies) do
-      local is_dead = false
       for _, shot in pairs(state.player_shots) do
-        local d = shot.pos - enemy:center()
-        if d:magSq() < (SHOT_RADIUS + enemy:radius().x) ^ 2 then
-          is_dead = true
+        if shot.has_hit then goto continue end
+        if enemy:is_dead() then goto continue end
+        if shot.pos:dist_square(enemy:center()) < shot:radius().x ^ 2 + enemy:radius().x ^ 2 then
+          shot:hit(enemy, actions)
           shot.has_hit = true
         end
+        ::continue::
       end
-      if is_dead then
-        enemy:kill()
+      if enemy:is_dead() then
+        state.kills = state.kills + 1
+        if state.kills % 10 == 0 then
+          state.level:spawn_items()
+        end
         table.insert(new_dead, enemy)
       else
         local pp, vv = state.level:contain(
@@ -110,11 +125,24 @@ local player_state = GameState.new {
     -- remove unalive shots
     local new_shots = {}
     for _, shot in pairs(state.player_shots) do
-      if shot.alive > 0.0 and not shot.has_hit then
+      if shot:keep() then
         table.insert(new_shots, shot)
+      elseif shot.has_hit then
+        Sound.hit()
       end
     end
     state.player_shots = new_shots
+
+    -- player vs enemies
+    for _, enemy in pairs(state.enemies) do
+      if state.player:check_hit(enemy) then
+        Renderer.pallet(unpack(Renderer.hit_pallet))
+        table.insert(state.timers, Timer.new(0.2, function()
+          Renderer.pallet(unpack(Renderer.default_pallet))
+        end))
+        break
+      end
+    end
 
     -- update enemies
     for _, enemy in pairs(state.enemies) do
@@ -127,7 +155,7 @@ local player_state = GameState.new {
     end
 
     -- update items
-    for _, item in pairs(state.items) do
+    for _, item in pairs(state.player.items) do
       item:update(dt)
     end
   end,
@@ -140,13 +168,10 @@ local player_state = GameState.new {
     state.level:draw()
     love.graphics.setColor(0, 0, 0)
     for _, shot in pairs(state.player_shots) do
-      love.graphics.circle("fill", math.floor(shot.pos.x), math.floor(shot.pos.y), SHOT_RADIUS)
+      shot:draw()
     end
     love.graphics.setColor(1, 1, 1)
     state.player:draw()
-    for _, item in pairs(state.items) do
-      item:draw()
-    end
     for _, enemy in pairs(state.enemies) do
       enemy:draw()
     end
@@ -156,10 +181,21 @@ local player_state = GameState.new {
     love.graphics.pop()
 
     -- draw currently picked up items
+    local width_to_fit = Renderer.w - 2 - 16
+    local num_items = #state.player.items
+    local step = math.floor(width_to_fit / (num_items + 1))
     love.graphics.draw(item_frame, 0, Renderer.h - 17)
     for i, item in pairs(state.player.items) do
-      item:draw((i - 1) * 16 + 1, Renderer.h - 17 + 1)
+      item:draw(1 + i * step, Renderer.h - 16 + 1)
     end
+    -- draw hp
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.printf(tostring(state.kills), 0, 0, 100, "left")
+    love.graphics.setColor(1, 0, 0)
+    for i = 0, state.player.hp - 1, 1 do
+      love.graphics.rectangle("fill", i * 3, Renderer.h - 16, 2, 2)
+    end
+    love.graphics.setColor(1, 1, 1)
   end
 }
 

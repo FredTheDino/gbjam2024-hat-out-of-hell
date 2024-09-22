@@ -102,7 +102,8 @@ end
 -- meta function to add vectors together
 -- ex: (vector(5,6) + vector(6,5)) is the same as vector(11,11)
 function vector.__add(a, b)
-  assert(isvector(a) and isvector(b), "add: wrong argument types: (expected <vector> and <vector>)" .. tostring(a) .. " and " .. tostring(b))
+  assert(isvector(a) and isvector(b),
+    "add: wrong argument types: (expected <vector> and <vector>)" .. tostring(a) .. " and " .. tostring(b))
   return new(a.x + b.x, a.y + b.y)
 end
 
@@ -143,14 +144,18 @@ function vector:__tostring()
 end
 
 -- get the distance between two vectors
-function vector.dist(a, b)
-  assert(isvector(a) and isvector(b), "dist: wrong argument types (expected <vector> and <vector>)")
-  return math.sqrt(vector.dist_square(a, b))
+function vector:dist(a)
+  assert(isvector(self) and isvector(a), "dist: wrong argument types (expected <vector> and <vector>)")
+  return math.sqrt(vector.dist_square(self, a))
 end
 
 function vector.dist_square(a, b)
   assert(isvector(a) and isvector(b), "dist: wrong argument types (expected <vector> and <vector>)")
   return (a.x - b.x) ^ 2 + (a.y - b.y) ^ 2
+end
+
+function vector.random()
+  return new(1, 0):rotate(love.math.random(0, 2 * math.pi))
 end
 
 -- return the dot product of the vector
@@ -191,7 +196,7 @@ end
 function vector:min(min)
   local x = math.min(min, self.x)
   local y = math.min(min, self.y)
-  self:set(x,y)
+  self:set(x, y)
   return self
 end
 
@@ -199,7 +204,7 @@ end
 function vector:max(max)
   local x = math.max(max, self.x)
   local y = math.max(max, self.y)
-  self:set(x,y)
+  self:set(x, y)
   return self
 end
 
