@@ -96,10 +96,12 @@ function Self:contain(p, size, v, bounce)
   return correction, Vec.new(maybe_bounce(correction.x), maybe_bounce(correction.y))
 end
 
+function Self:spawn_items()
+  for _, w in pairs(self.alters) do w:enable() end
+end
+
 function Self:update(dt, player)
-  for _, w in pairs(self.alters) do
-    w:update(dt)
-  end
+  for _, w in pairs(self.alters) do w:update(dt) end
 
   for _, a in pairs(self.alters) do
     if a.item and a.pos:dist_square(player.pos) < 16 ^ 2 then

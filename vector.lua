@@ -154,6 +154,10 @@ function vector.dist_square(a, b)
   return (a.x - b.x) ^ 2 + (a.y - b.y) ^ 2
 end
 
+function vector.random()
+  return new(1, 0):rotate(love.math.random(0, 2 * math.pi))
+end
+
 -- return the dot product of the vector
 function vector:dot(v)
   assert(isvector(v), "dot: wrong argument type (expected <vector>)")

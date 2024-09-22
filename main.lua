@@ -93,6 +93,9 @@ local player_state = GameState.new {
       end
       if enemy:is_dead() then
         state.kills = state.kills + 1
+        if state.kills % 10 == 0 then
+          state.level:spawn_items()
+        end
         table.insert(new_dead, enemy)
       else
         local pp, vv = state.level:contain(
