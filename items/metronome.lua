@@ -37,22 +37,25 @@ function Metronome:_is_on_beat()
   return offset > (cycle_length / 2.0) - 0.1 and offset < (cycle_length / 2.0) + 0.1
 end
 
-function Metronome:draw()
-  -- TODO: draw in icon grid
-  self.anim:draw(50, 50)
-  if self.good_shot then
-    love.graphics.rectangle("fill", 50, 66, 4, 4)
-  end
-
-  if self:_is_on_beat() then
-    love.graphics.rectangle("fill", 60, 66, 4, 4)
-  end
+function Metronome:draw(x, y)
+  self.anim:draw(x, y)
 end
 
-function Metronome:on_shoot()
+function Metronome:on_shoot(shots)
   self.good_shot = self:_is_on_beat()
   self.last_shot = love.timer.getTime()
-  -- TODO: manipulate the shot in some way
+  local out = {}
+  if self.good_shot then
+    for _, s in pairs(shots) do
+      table.insert(out, s)
+      local ss = s:clone()
+      ss.vel = -ss.vel
+      table.insert(out, ss)
+    end
+  else
+    out = shots
+  end
+  return out
 end
 
 return Metronome

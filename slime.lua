@@ -18,6 +18,8 @@ function Slime.init(at)
   self.anim = peachy.new("assets/slime.json", self.sprite, "idle")
   self:idle(1)
   self.dir = nil
+  self.hp = 1
+  self.slow = 0
   self.pos = at or Vec()
   self.vel = Vec()
   self.speed = jump_speed()
@@ -41,6 +43,17 @@ function Slime:jump()
   end)
 end
 
+function Slime:hit()
+  self.hp = self.hp - 1
+  if self:is_dead() then
+    self:kill()
+  end
+end
+
+function Slime:is_dead()
+  return self.hp <= 0
+end
+
 function Slime:kill()
   self.anim:setTag("death")
   self.anim:onLoop(function() self.gone = true end)
@@ -55,6 +68,7 @@ function Slime:radius()
 end
 
 function Slime:update(dt, target)
+  dt = dt / (self.slow + 1)
   self.anim:update(dt)
   self.dir = self.dir or (target - self.pos)
   if self.anim.tagName == "jump" and self.dir ~= nil then

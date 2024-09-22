@@ -3,6 +3,7 @@ local Vec = require "vector"
 local inspect = require "inspect"
 local peachy = require "peachy"
 local json = require "peachy.lib.json"
+local Shot = require "shot"
 
 local sprite
 local pixel
@@ -80,21 +81,16 @@ function Player:update(inputs, dt, shots)
       self.sprite:setTag("idle")
       self.sprite:onLoop(function() end)
     end)
-    local shot = {
-      pos = self.pos + Vec(
-        Joe.iff(self.face_left, 4, SIZE - 6),
-        9
-      ),
-      vel = Vec(Joe.iff(self.face_left, -1, 1), 0) * self.shoot_speed,
-      alive = self.shot_life,
-      on_hit = {},
-      has_hit = false,
-    }
-    table.insert(shots, shot)
+    local to_insert = { Shot.new(
+      self.pos + Vec(Joe.iff(self.face_left, 4, SIZE - 6), 9),
+      Vec(Joe.iff(self.face_left, -1, 1), 0) * self.shoot_speed,
+      self.shot_life
+    ) }
     for _, item in pairs(self.items) do
-      if item.on_shoot1 then
-        item:on_shoot1(shot)
-      end
+      to_insert = item:on_shoot(to_insert)
+    end
+    for _, shot in pairs(to_insert) do
+      table.insert(shots, shot)
     end
   end
 
