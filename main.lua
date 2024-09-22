@@ -60,25 +60,11 @@ local player_state = GameState.new {
           new_target_dist = dist
         end
       end
-      state.player.shoot_target = new_target_pos + Vector.new(entity_radius, entity_radius)
+      -- state.player.shoot_target = new_target_pos + Vector.new(entity_radius, entity_radius)
     end
 
     -- spawn shots
-    if state.player.shoot1 then
-      local shot = {
-        pos = state.player.pos,
-        vel = (state.player.shoot_target - state.player.pos):norm() * state.player.shoot_speed,
-        alive = state.player.shot_life,
-        on_hit = {},
-        has_hit = false,
-      }
-      table.insert(state.player_shots, shot)
-      for _, item in pairs(state.items) do
-        if item.on_shoot1 then
-          item:on_shoot1(shot)
-        end
-      end
-    end
+    state.player:shoot(state.items, state.player_shots)
 
     -- TODO: if state.player.shoot2
 
