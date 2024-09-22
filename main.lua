@@ -17,6 +17,14 @@ local ItemSlime = require "items.slime"
 local RadIso = require "items.radioactive_isotope"
 local Boomerang = require "items.boomerang"
 local Wave = require "items.wave"
+--
+local Sneakers = require "items.sneakers"
+local Ufo = require "items.ufo"
+local Clip = require "items.clip"
+local Dupe = require "items.dupe"
+local Heart = require "items.heart"
+--
+local Identity = require "items.identity"
 
 local tiles
 
@@ -35,10 +43,27 @@ local player_state = GameState.new {
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
-    table.insert(player.items, Wave.init())
-    table.insert(player.items, Wave.init())
-    table.insert(player.items, Wave.init())
-    table.insert(player.items, Wave.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
+    player:pickup(Fridge.init())
     local self = {
       player = player,
       enemies = {},
@@ -177,10 +202,19 @@ local player_state = GameState.new {
     love.graphics.pop()
 
     -- draw currently picked up items
+    local width_to_fit = Renderer.w - 2 - 16
+    local num_items = #state.player.items
+    local step = math.floor(width_to_fit / (num_items + 1))
     love.graphics.draw(item_frame, 0, Renderer.h - 17)
     for i, item in pairs(state.player.items) do
-      item:draw((i - 1) * 16 + 1, Renderer.h - 17 + 1)
+      item:draw(1 + i * step, Renderer.h - 16 + 1)
     end
+    -- draw hp 
+    love.graphics.setColor(1, 0, 0)
+    for i = 0, state.player.hp - 1, 1 do
+      love.graphics.rectangle("fill", i * 3, Renderer.h - 16, 2, 2)
+    end
+    love.graphics.setColor(1, 1, 1)
   end
 }
 

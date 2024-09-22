@@ -18,7 +18,9 @@ end
 function Fridge:on_shoot(shots)
   for _, s in pairs(shots) do
     table.insert(s.on_hit, function(_, other)
-      other.slow = other.slow + 1
+      if other then
+        other.slow = other.slow + 1
+      end
     end)
   end
   return shots

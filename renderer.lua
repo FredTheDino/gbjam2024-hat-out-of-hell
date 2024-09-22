@@ -43,7 +43,7 @@ function Renderer.draw(f, ...)
   love.graphics.setCanvas(canvas)
   love.graphics.clear(0.0, 0.0, 0.0, 1.0)
   local sw, sh = love.graphics.getDimensions()
-  love.graphics.draw(buffer, (sw - (w * scale)) / 2, (sh - (h * scale)) / 2, 0, scale)
+  love.graphics.draw(buffer, math.floor((sw - (w * scale)) / 2), math.floor((sh - (h * scale)) / 2), 0, scale)
 end
 
 return Renderer

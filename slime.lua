@@ -18,7 +18,7 @@ function Slime.init(at)
   self.anim = peachy.new("assets/slime.json", self.sprite, "idle")
   self:idle(1)
   self.dir = nil
-  self.hp = 1
+  self.hp = 2
   self.slow = 0
   self.pos = at or Vec()
   self.vel = Vec()
@@ -47,6 +47,8 @@ function Slime:hit()
   self.hp = self.hp - 1
   if self:is_dead() then
     self:kill()
+  else
+    self.anim:setTag("hit")
   end
 end
 
