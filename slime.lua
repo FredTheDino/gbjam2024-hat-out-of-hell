@@ -1,6 +1,7 @@
 local peachy = require "peachy"
 local Vec = require "vector"
 local Joe = require "joe"
+local Sound = require "sound"
 
 ---@class Slime
 local Slime = {}
@@ -37,6 +38,7 @@ end
 function Slime:jump()
   if self.dir == nil then return self:idle() end
   self.dir = nil
+  Sound.jump()
   self.anim:setTag("jump")
   self.anim:onLoop(function()
     self:idle(math.floor(love.math.random(1, 3)))

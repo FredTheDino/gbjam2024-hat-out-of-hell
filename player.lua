@@ -4,6 +4,7 @@ local inspect = require "inspect"
 local peachy = require "peachy"
 local json = require "peachy.lib.json"
 local Shot = require "shot"
+local Sound = require "sound"
 
 local sprite
 local pixel
@@ -37,7 +38,6 @@ function Player.init(at)
   self.shot_life = 2.2
   self.shoot_cooldown = 0.0
   self.shoot_cooldown_time = 0.2
-  self.hit_cooldown = 0.0
   self.hp = 2
   self.items = {}
 
@@ -74,7 +74,7 @@ function Player:update(inputs, dt, shots)
   if math.abs(self.vel.x) > 0.1 then
     self.face_left = self.vel.x < 0
   end
-  if inputs.a >= 1.0 and self.shoot_cooldown == 0.0 then
+  if #shots < 200 and inputs.a >= 1.0 and self.shoot_cooldown == 0.0 then
     self.shoot_cooldown = self.shoot_cooldown_time
     self.sprite:setTag("idle")
     self.sprite:setTag(Joe.iff(#self.items > 5, "shoot-strong", "shoot"))
@@ -87,6 +87,7 @@ function Player:update(inputs, dt, shots)
       Vec(Joe.iff(self.face_left, -1, 1), 0) * self.shoot_speed,
       self.shot_life
     ) }
+    Sound.shoot()
     for _, item in pairs(self.items) do
       if item.on_shoot then
         to_insert = item:on_shoot(to_insert)
@@ -97,11 +98,11 @@ function Player:update(inputs, dt, shots)
     end
   end
 
-  self.hit_cooldown = math.max(0.0, self.hit_cooldown - dt)
   self.shoot_cooldown = math.max(0.0, self.shoot_cooldown - dt)
 end
 
 function Player:pickup(item)
+  Sound.pickup()
   if item.on_pickup then
     item:on_pickup(self)
   end
@@ -121,6 +122,10 @@ end
 
 function Player:center()
   return self.pos + Vec(SIZE, SIZE) * 0.5
+end
+
+function Player:is_alive()
+  return self.hp > 0
 end
 
 function Player:check_hit(other)
@@ -143,6 +148,7 @@ function Player:check_hit(other)
         self.dead = true
       end)
     end
+    Sound.hurt()
     return true
   end
   return false

@@ -6,14 +6,17 @@ local Joe = require "joe"
 local Vec = require "vector"
 local Slime = require "slime"
 local Timer = require "timer"
+local Sound = require "sound"
 
 local tiles
 
 local item_frame = love.graphics.newImage("assets/item-frame.png")
+local sounds
 
 -- Example GameState
 
 local function spawn(state)
+  if not state.player:is_alive() then return end
   local at = Joe.random_from(state.level.spawns) + Vec(love.math.random(-3, 3), love.math.random(-3, 3))
   table.insert(state.enemies, Slime.init(at))
   table.insert(state.timers, Timer.new(1, spawn))
@@ -22,6 +25,8 @@ end
 local player_state = GameState.new {
   enter = function()
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
+
+    Sound.load()
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
     local self = {
@@ -48,7 +53,7 @@ local player_state = GameState.new {
     )
     state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
 
-    local actions = {
+    local actions                      = {
       shoot = function(s) table.insert(state.player_shots, s) end
     }
 
@@ -122,6 +127,8 @@ local player_state = GameState.new {
     for _, shot in pairs(state.player_shots) do
       if shot:keep() then
         table.insert(new_shots, shot)
+      elseif shot.has_hit then
+        Sound.hit()
       end
     end
     state.player_shots = new_shots
