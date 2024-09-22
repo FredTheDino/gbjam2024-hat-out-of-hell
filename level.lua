@@ -64,7 +64,7 @@ function Self:contain(p, size, v)
   v = v or Vec.new()
   local correction
   for _, a in pairs(self.walkables) do
-    local lo, hi = a.at + Vec.new(size.x, 0), a.at + a.size - Vec.new(0, size.y)
+    local lo, hi = a.at, a.at + a.size - Vec.new(size.x, size.y)
     if lo.x < p.x and p.x < hi.x and lo.y < p.y and p.y < hi.y then
       -- We are infact on walkable
       return p, v
