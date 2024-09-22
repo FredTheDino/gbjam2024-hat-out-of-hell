@@ -102,7 +102,7 @@ end
 -- meta function to add vectors together
 -- ex: (vector(5,6) + vector(6,5)) is the same as vector(11,11)
 function vector.__add(a, b)
-  assert(isvector(a) and isvector(b), "add: wrong argument types: (expected <vector> and <vector>)")
+  assert(isvector(a) and isvector(b), "add: wrong argument types: (expected <vector> and <vector>)" .. tostring(a) .. " and " .. tostring(b))
   return new(a.x + b.x, a.y + b.y)
 end
 

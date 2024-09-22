@@ -12,8 +12,7 @@ local Timer = require "timer"
 
 local tiles
 
-local shot_radius = 2
-local entity_radius = 8
+local SHOT_RADIUS = 2
 
 -- Example GameState
 
@@ -48,21 +47,6 @@ local player_state = GameState.new {
       state.player.vel
     )
 
-    -- player should target the closest enemy
-    state.player.can_shoot = #state.enemies ~= 0
-    if state.player.can_shoot then
-      local new_target_pos = state.enemies[1].pos
-      local new_target_dist = new_target_pos:dist_square(state.player.pos)
-      for _, enemy in pairs(state.enemies) do
-        local dist = enemy.pos:dist_square(state.player.pos)
-        if dist < new_target_dist then
-          new_target_pos = enemy.pos
-          new_target_dist = dist
-        end
-      end
-      -- state.player.shoot_target = new_target_pos + Vector.new(entity_radius, entity_radius)
-    end
-
     -- spawn shots
     state.player:shoot(state.items, state.player_shots)
 
@@ -89,9 +73,8 @@ local player_state = GameState.new {
     for _, enemy in pairs(state.enemies) do
       local is_dead = false
       for _, shot in pairs(state.player_shots) do
-        local dx = math.abs((shot.pos.x + shot_radius) - (enemy.pos.x + entity_radius))
-        local dy = math.abs((shot.pos.y + shot_radius) - (enemy.pos.y + entity_radius))
-        if dx * dx + dy * dy < 2 + 8 then
+        local d = shot.pos - enemy:center()
+        if d:magSq() < (SHOT_RADIUS + enemy:radius().x) ^ 2 then
           is_dead = true
           shot.has_hit = true
         end
@@ -144,7 +127,7 @@ local player_state = GameState.new {
     state.level:draw()
     love.graphics.setColor(0, 0, 0)
     for _, shot in pairs(state.player_shots) do
-      love.graphics.rectangle("fill", shot.pos.x, shot.pos.y, shot_radius * 2, shot_radius * 2)
+      love.graphics.circle("fill", math.floor(shot.pos.x), math.floor(shot.pos.y), SHOT_RADIUS)
     end
     love.graphics.setColor(1, 1, 1)
     state.player:draw()

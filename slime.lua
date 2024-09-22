@@ -1,5 +1,5 @@
 local peachy = require "peachy"
-local Vector = require "vector"
+local Vec = require "vector"
 local Joe = require "joe"
 
 ---@class Slime
@@ -9,6 +9,8 @@ local function jump_speed()
   return love.math.random(45, 60)
 end
 
+local RADIUS = 6
+
 ---@return Slime
 function Slime.init(at)
   local self = setmetatable({}, { __index = Slime })
@@ -16,8 +18,8 @@ function Slime.init(at)
   self.anim = peachy.new("assets/slime.json", self.sprite, "idle")
   self:idle(1)
   self.dir = nil
-  self.pos = at or Vector.new()
-  self.vel = Vector.new()
+  self.pos = at or Vec()
+  self.vel = Vec()
   self.speed = jump_speed()
   self.gone = false
   return self
@@ -44,10 +46,18 @@ function Slime:kill()
   self.anim:onLoop(function() self.gone = true end)
 end
 
+function Slime:center()
+  return self.pos + self:radius() + Vec(0, 4)
+end
+
+function Slime:radius()
+  return Vec(RADIUS, RADIUS)
+end
+
 function Slime:update(dt, target)
   self.anim:update(dt)
   self.dir = self.dir or (target - self.pos)
-  self.vel = Vector.new()
+  self.vel = Vec()
   if self.anim.tagName == "jump" and self.dir ~= nil then
     if 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
       self.vel = self.dir:norm() * self.speed
