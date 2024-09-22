@@ -1,15 +1,17 @@
 local Self = {}
 Self.__index = Self
 
+local Joe = require "joe"
+
 function Self.new(at, vel, lifetime, radius, on_hit)
   return setmetatable({
-    pos = at,
-    vel = vel,
+    pos = Joe.clone(at),
+    vel = Joe.clone(vel),
     alive = lifetime,
     radius = radius or 2,
-    on_hit = on_hit or { function(other)
-        other:hit()
-      end },
+    on_hit = Joe.clone(on_hit) or { function(_, other)
+      other:hit()
+    end },
     has_hit = false,
   }, Self)
 end
@@ -23,9 +25,9 @@ function Self:update(dt)
   self.alive = self.alive - dt
 end
 
-function Self:hit(other)
+function Self:hit(other, actions)
   for _, f in pairs(self.on_hit) do
-    f(other)
+    f(self, other, actions)
   end
 end
 

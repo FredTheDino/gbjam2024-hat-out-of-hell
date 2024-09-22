@@ -10,10 +10,13 @@ local Timer = require "timer"
 -- Items
 local Metronome = require "items.metronome"
 local Fridge = require "items.fridge"
+local Usa = require "items.usa"
+local Drill = require "items.drill"
+local Fork = require "items.fork"
+local ItemSlime = require "items.slime"
 
 local tiles
 
-local SHOT_RADIUS = 2
 local item_frame = love.graphics.newImage("assets/item-frame.png")
 
 -- Example GameState
@@ -29,11 +32,11 @@ local player_state = GameState.new {
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
-    table.insert(player.items, Fridge.init())
-    table.insert(player.items, Metronome.init())
+    table.insert(player.items, Fork.init())
+    table.insert(player.items, ItemSlime.init())
     local self = {
       player = player,
-      enemies = { Slime.init(Vec.new(50, 50)) },
+      enemies = { },
       dead = {},
       player_shots = {},
       level = level,
@@ -74,7 +77,7 @@ local player_state = GameState.new {
         if shot.has_hit then goto continue end
         if enemy:is_dead() then goto continue end
         if shot.pos:dist_square(enemy:center()) < shot.radius ^ 2 + enemy:radius().x ^ 2 then
-          shot:hit(enemy)
+          shot:hit(enemy, { shoot = function(s) table.insert(state.player_shots, s) end })
           shot.has_hit = true
         end
         ::continue::
