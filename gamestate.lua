@@ -35,7 +35,9 @@ function GameState.new(state)
 end
 
 local function check(prop, dt, current)
-  if current then
+  if current and inputs[prop] <= 0 then
+    return 1
+  elseif current then
     return math.max(inputs[prop], 0) + dt
   else
     if inputs[prop] > 0 then

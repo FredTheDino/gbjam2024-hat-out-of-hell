@@ -1,5 +1,5 @@
-local joe = require "joe"
-local Vector = require "vector"
+local Joe = require "joe"
+local Vec = require "vector"
 local inspect = require "inspect"
 local peachy = require "peachy"
 local json = require "peachy.lib.json"
@@ -23,10 +23,9 @@ function Player.init(at)
   end
   local self = setmetatable({}, { __index = Player })
   self.sprite = peachy.new(sprite_data, sprite, "idle")
-  self.pos = at or Vector(0.0, 0.0)
-  self.vel = Vector(0.0, 0.0)
-  self.can_shoot = false
-  self.shoot_target = Vector(50, 50)
+  self.pos = at or Vec(0.0, 0.0)
+  self.vel = Vec(0.0, 0.0)
+  self.shoot_target = Vec(50, 50)
   self.shoot_speed = 100
   self.shot_life = 1.0
   self.shoot1 = false
@@ -47,24 +46,25 @@ function Player.init(at)
   return self
 end
 
-local speed = 80
+local SPEED = 200
+local DRAG = 0.01
 
 ---@param inputs Input
 ---@param dt number
 function Player:update(inputs, dt)
-  local movement_dir = (Vector.new(joe.iff(inputs.right > 0, speed, 0), 0)
-    + Vector.new(joe.iff(inputs.left > 0, -speed, 0), 0)
-    + Vector.new(0, joe.iff(inputs.down > 0, speed, 0))
-    + Vector.new(0, joe.iff(inputs.up > 0, -speed, 0))
+  local movement_dir = (Vec(Joe.iff(inputs.right > 0, SPEED, 0), 0)
+    + Vec(Joe.iff(inputs.left > 0, -SPEED, 0), 0)
+    + Vec(0, Joe.iff(inputs.down > 0, SPEED, 0))
+    + Vec(0, Joe.iff(inputs.up > 0, -SPEED, 0))
   )
   self.vel = self.vel + movement_dir * dt
-  self.vel = self.vel * (0.1 ^ dt)
+  self.vel = self.vel * (DRAG ^ dt)
   self.pos = self.pos + self.vel * dt
 
   if math.abs(self.vel.x) > 0.1 then
     self.face_left = self.vel.x < 0
   end
-  if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 and self.can_shoot then
+  if inputs.a == 1.0 and self.shoot1_cooldown == 0.0 then
     self.shoot1 = true
     self.shoot1_cooldown = 0.2
     self.sprite:setTag("shoot") -- alt: "shoot-strong"
@@ -87,9 +87,30 @@ function Player:draw()
   love.graphics.draw(self.particles, 0, 0)
 
   if self.face_left then
-    self.sprite:draw(16 + joe.round(self.pos.x), joe.round(self.pos.y), 0, -1)
+    self.sprite:draw(16 + Joe.round(self.pos.x), Joe.round(self.pos.y), 0, -1)
   else
-    self.sprite:draw(joe.round(self.pos.x), joe.round(self.pos.y), 0, 1)
+    self.sprite:draw(Joe.round(self.pos.x), Joe.round(self.pos.y), 0, 1)
+  end
+end
+
+function Player:shoot(items, shots)
+  if self.shoot1 then
+    local shot = {
+      pos = self.pos + Vec(
+        Joe.iff(self.face_left, 4, 16 - 6),
+        9
+      ),
+      vel = Vec(Joe.iff(self.face_left, -1, 1), 0) * self.shoot_speed,
+      alive = self.shot_life,
+      on_hit = {},
+      has_hit = false,
+    }
+    table.insert(shots, shot)
+    for _, item in pairs(items) do
+      if item.on_shoot1 then
+        item:on_shoot1(shot)
+      end
+    end
   end
 end
 

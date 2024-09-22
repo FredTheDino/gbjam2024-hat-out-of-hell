@@ -60,14 +60,14 @@ function Self.new(map, tiles)
   return self
 end
 
-function Self:contain(p, size, v)
+function Self:contain(p, size, v, bounce)
   v = v or Vec.new()
   local correction
   for _, a in pairs(self.walkables) do
-    local lo, hi = a.at + Vec.new(size.x, 0), a.at + a.size - Vec.new(0, size.y)
+    local lo, hi = a.at, a.at + a.size - size
     if lo.x < p.x and p.x < hi.x and lo.y < p.y and p.y < hi.y then
       -- We are infact on walkable
-      return p, v
+      return Vec(), Vec(1, 1)
     end
     local diff_a = (lo - p):max(0)
     local diff_b = (hi - p):min(0)
@@ -86,7 +86,10 @@ function Self:contain(p, size, v)
     end
   end
   correction = correction or Vec.new()
-  return p + correction, v * Vec.new(Joe.asInt(correction.x == 0), Joe.asInt(correction.y == 0))
+  local function maybe_bounce(a)
+    return Joe.iff(a == 0, 1, bounce or 0)
+  end
+  return correction, Vec.new(maybe_bounce(correction.x), maybe_bounce(correction.y))
 end
 
 function Self:draw()

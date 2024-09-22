@@ -1,9 +1,15 @@
 local peachy = require "peachy"
-local Vector = require "vector"
+local Vec = require "vector"
 local Joe = require "joe"
 
 ---@class Slime
 local Slime = {}
+
+local function jump_speed()
+  return love.math.random(45, 60)
+end
+
+local RADIUS = 6
 
 ---@return Slime
 function Slime.init(at)
@@ -12,8 +18,9 @@ function Slime.init(at)
   self.anim = peachy.new("assets/slime.json", self.sprite, "idle")
   self:idle(1)
   self.dir = nil
-  self.pos = at or Vector.new()
-  self.vel = Vector.new()
+  self.pos = at or Vec()
+  self.vel = Vec()
+  self.speed = jump_speed()
   self.gone = false
   return self
 end
@@ -39,22 +46,40 @@ function Slime:kill()
   self.anim:onLoop(function() self.gone = true end)
 end
 
-JUMP_SPEED = 50
+function Slime:center()
+  return self.pos + self:radius() + Vec(1, 4)
+end
+
+function Slime:radius()
+  return Vec(RADIUS, RADIUS)
+end
 
 function Slime:update(dt, target)
   self.anim:update(dt)
   self.dir = self.dir or (target - self.pos)
-  self.vel = Vector.new()
   if self.anim.tagName == "jump" and self.dir ~= nil then
-    if 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
-      self.vel = self.dir:norm() * JUMP_SPEED
+    if 3 == self.anim.frameIndex and self.vel:magSq() == 0 then
+      self.vel = self.dir:norm() * self.speed
+    elseif 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
+      self.vel = self.vel
+    else
+      self.vel = Vec()
     end
+  else
+    self.vel = Vec()
   end
   self.pos = self.pos + self.vel * dt
 end
 
 function Slime:draw()
   if self.gone then return end
+  love.graphics.setColor(0, 1, 0)
+  love.graphics.circle("fill",
+    Joe.round(self:center().x),
+    Joe.round(self:center().y),
+    self:radius().x
+  )
+  love.graphics.setColor(1, 1, 1)
   self.anim:draw(Joe.round(self.pos.x), Joe.round(self.pos.y))
 end
 
