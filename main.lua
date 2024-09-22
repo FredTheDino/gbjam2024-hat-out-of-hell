@@ -28,24 +28,25 @@ local player_state = GameState.new {
     local level = Level.new(require "assets.basic_map", tiles)
     local self = {
       player = Player.init(level.player_spawn),
-      enemies = { Slime.init(Vec.new(50, 50)), Slime.init(Vec.new(150, 50)) },
+      enemies = { Slime.init(Vec.new(50, 50)) },
       dead = {},
       player_shots = {},
       items = { Fridge.init() },
       level = level,
       timers = {},
     }
-    spawn(self)
+    -- spawn(self)
     return self
   end,
   exit = function() end,
   update = function(state, inputs, dt)
     state.player:update(inputs, dt)
-    state.player.pos, state.player.vel = state.level:contain(
+    local pp, vv                       = state.level:contain(
       state.player.pos,
       Vec.new(16, 16),
       state.player.vel
     )
+    state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
 
     -- spawn shots
     state.player:shoot(state.items, state.player_shots)
@@ -83,6 +84,14 @@ local player_state = GameState.new {
         enemy:kill()
         table.insert(new_dead, enemy)
       else
+        local pp, vv = state.level:contain(
+          enemy:center() - enemy:radius(),
+          enemy:radius() * 2,
+          enemy.vel,
+          -1
+        )
+        enemy.pos = enemy.pos + pp
+        enemy.vel = enemy.vel * vv
         table.insert(new_enemies, enemy)
       end
     end

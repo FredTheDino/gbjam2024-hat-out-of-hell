@@ -47,7 +47,7 @@ function Slime:kill()
 end
 
 function Slime:center()
-  return self.pos + self:radius() + Vec(0, 4)
+  return self.pos + self:radius() + Vec(1, 4)
 end
 
 function Slime:radius()
@@ -57,17 +57,29 @@ end
 function Slime:update(dt, target)
   self.anim:update(dt)
   self.dir = self.dir or (target - self.pos)
-  self.vel = Vec()
   if self.anim.tagName == "jump" and self.dir ~= nil then
-    if 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
+    if 3 == self.anim.frameIndex and self.vel:magSq() == 0 then
       self.vel = self.dir:norm() * self.speed
+    elseif 3 <= self.anim.frameIndex and self.anim.frameIndex <= 7 then
+      self.vel = self.vel
+    else
+      self.vel = Vec()
     end
+  else
+    self.vel = Vec()
   end
   self.pos = self.pos + self.vel * dt
 end
 
 function Slime:draw()
   if self.gone then return end
+  love.graphics.setColor(0, 1, 0)
+  love.graphics.circle("fill",
+    Joe.round(self:center().x),
+    Joe.round(self:center().y),
+    self:radius().x
+  )
+  love.graphics.setColor(1, 1, 1)
   self.anim:draw(Joe.round(self.pos.x), Joe.round(self.pos.y))
 end
 
