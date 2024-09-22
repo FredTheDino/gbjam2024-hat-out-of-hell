@@ -46,24 +46,25 @@ function Player.init(at)
   return self
 end
 
-local speed = 80
+local SPEED = 200
+local DRAG = 0.01
 
 ---@param inputs Input
 ---@param dt number
 function Player:update(inputs, dt)
-  local movement_dir = (Vec(Joe.iff(inputs.right > 0, speed, 0), 0)
-    + Vec(Joe.iff(inputs.left > 0, -speed, 0), 0)
-    + Vec(0, Joe.iff(inputs.down > 0, speed, 0))
-    + Vec(0, Joe.iff(inputs.up > 0, -speed, 0))
+  local movement_dir = (Vec(Joe.iff(inputs.right > 0, SPEED, 0), 0)
+    + Vec(Joe.iff(inputs.left > 0, -SPEED, 0), 0)
+    + Vec(0, Joe.iff(inputs.down > 0, SPEED, 0))
+    + Vec(0, Joe.iff(inputs.up > 0, -SPEED, 0))
   )
   self.vel = self.vel + movement_dir * dt
-  self.vel = self.vel * (0.1 ^ dt)
+  self.vel = self.vel * (DRAG ^ dt)
   self.pos = self.pos + self.vel * dt
 
   if math.abs(self.vel.x) > 0.1 then
     self.face_left = self.vel.x < 0
   end
-  if inputs.a > 0.0 and self.shoot1_cooldown == 0.0 and self.can_shoot then
+  if inputs.a == 1.0 and self.shoot1_cooldown == 0.0 and self.can_shoot then
     self.shoot1 = true
     self.shoot1_cooldown = 0.2
     self.sprite:setTag("shoot") -- alt: "shoot-strong"
