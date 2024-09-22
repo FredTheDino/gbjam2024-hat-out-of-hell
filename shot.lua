@@ -2,27 +2,36 @@ local Self = {}
 Self.__index = Self
 
 local Joe = require "joe"
+local Vec = require "vector"
 
-function Self.new(at, vel, lifetime, radius, on_hit)
+function Self.new(at, vel, lifetime, rad, on_hit)
   return setmetatable({
     pos = Joe.clone(at),
     vel = Joe.clone(vel),
     alive = lifetime,
-    radius = radius or 2,
+    rad = rad or 2,
     on_hit = Joe.clone(on_hit) or { function(_, other)
-      other:hit()
+      if other then other:hit() end
     end },
     has_hit = false,
   }, Self)
 end
 
 function Self:clone()
-  return self.new(self.pos, self.vel, self.alive, self.radius, self.on_hit)
+  return self.new(self.pos, self.vel, self.alive, self.rad, self.on_hit)
 end
 
 function Self:update(dt)
   self.pos = self.pos + self.vel * dt
   self.alive = self.alive - dt
+end
+
+function Self:center()
+  return self.pos
+end
+
+function Self:radius()
+  return Vec(self.rad, self.rad)
 end
 
 function Self:hit(other, actions)
@@ -40,7 +49,7 @@ function Self:draw()
   love.graphics.circle("fill",
     math.floor(self.pos.x),
     math.floor(self.pos.y),
-    self.radius
+    self.rad
   )
 end
 

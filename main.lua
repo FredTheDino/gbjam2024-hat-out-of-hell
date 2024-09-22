@@ -36,7 +36,7 @@ local player_state = GameState.new {
     table.insert(player.items, ItemSlime.init())
     local self = {
       player = player,
-      enemies = { },
+      enemies = {},
       dead = {},
       player_shots = {},
       level = level,
@@ -55,9 +55,26 @@ local player_state = GameState.new {
     )
     state.player.pos, state.player.vel = state.player.pos + pp, state.player.vel * vv
 
+
+    local actions = {
+      shoot = function(s) table.insert(state.player_shots, s) end
+    }
+
     -- update shots
     for _, shot in pairs(state.player_shots) do
       shot:update(dt)
+      local dp, dv = state.level:contain(
+        shot:center() - shot:radius(),
+        shot:radius() * 2,
+        shot.vel,
+        0
+      )
+      if dp.x ~= 0 or dp.y ~= 0 then
+        shot.pos = shot.pos + dp
+        shot.vel = shot.vel * dv
+        shot.has_hit = true
+        shot:hit(nil, actions)
+      end
     end
 
     local new_timers = {}
@@ -76,8 +93,8 @@ local player_state = GameState.new {
       for _, shot in pairs(state.player_shots) do
         if shot.has_hit then goto continue end
         if enemy:is_dead() then goto continue end
-        if shot.pos:dist_square(enemy:center()) < shot.radius ^ 2 + enemy:radius().x ^ 2 then
-          shot:hit(enemy, { shoot = function(s) table.insert(state.player_shots, s) end })
+        if shot.pos:dist_square(enemy:center()) < shot:radius().x ^ 2 + enemy:radius().x ^ 2 then
+          shot:hit(enemy, actions)
           shot.has_hit = true
         end
         ::continue::

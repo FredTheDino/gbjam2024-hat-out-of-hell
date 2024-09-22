@@ -16,7 +16,7 @@ end
 
 function Self:on_shoot(shots)
   for _, s in pairs(shots) do
-    s.radius = s.radius + 2
+    s.rad = s.rad + 2
   end
   return shots
 end
