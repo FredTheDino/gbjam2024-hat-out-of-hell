@@ -33,6 +33,10 @@ local player_state = GameState.new {
     local level = Level.new(require "assets.basic_map", tiles)
     local player = Player.init(level.player_spawn)
     table.insert(player.items, Fork.init())
+    table.insert(player.items, Fork.init())
+    table.insert(player.items, Fork.init())
+    table.insert(player.items, Fork.init())
+    table.insert(player.items, ItemSlime.init())
     table.insert(player.items, ItemSlime.init())
     local self = {
       player = player,
@@ -67,7 +71,7 @@ local player_state = GameState.new {
         shot:center() - shot:radius(),
         shot:radius() * 2,
         shot.vel,
-        0
+        -1
       )
       if dp.x ~= 0 or dp.y ~= 0 then
         shot.pos = shot.pos + dp

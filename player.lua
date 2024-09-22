@@ -76,7 +76,7 @@ function Player:update(inputs, dt, shots)
   end
   if inputs.a == 1.0 and self.shoot1_cooldown == 0.0 then
     self.shoot1_cooldown = 0.2
-    self.sprite:setTag("shoot") -- alt: "shoot-strong"
+    self.sprite:setTag(Joe.iff(#self.items > 5, "shoot-strong", "shoot"))
     self.sprite:onLoop(function()
       self.sprite:setTag("idle")
       self.sprite:onLoop(function() end)

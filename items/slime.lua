@@ -16,11 +16,10 @@ end
 
 function Self:on_shoot(shots)
   for _, s in pairs(shots) do
-    local copy = s:clone()
-    table.insert(s.on_hit, function(_, _, actions)
-      local copy = copy:clone()
-      copy.pos = s.pos
-      copy.vel.x = -copy.vel.x
+    table.insert(s.on_hit, function(a, _, actions)
+      local copy = a:clone()
+      copy.pos = a.pos
+      copy.vel.x = copy.vel.x
       actions.shoot(copy)
     end)
   end
