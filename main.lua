@@ -7,13 +7,11 @@ local Vec = require "vector"
 local Slime = require "slime"
 local Timer = require "timer"
 local Sound = require "sound"
+local peachy = require "peachy"
 
 local tiles
-
 local item_frame = love.graphics.newImage("assets/item-frame.png")
-local sounds
-
--- Example GameState
+local player_state
 
 local function spawn(state)
   if not state.player:is_alive() then return end
@@ -22,7 +20,33 @@ local function spawn(state)
   table.insert(state.timers, Timer.new(1, spawn))
 end
 
-local player_state = GameState.new {
+local splash_state = GameState.new {
+  enter = function()
+    local slime = {
+      sprite = love.graphics.newImage("assets/slime.png")
+    }
+    slime.anim = peachy.new("assets/slime.json", slime.sprite, "idle")
+    return {
+      splash = love.graphics.newImage("assets/splashscreen.png"),
+      slime = slime,
+      time = 0.0,
+    }
+  end,
+  exit = function() end,
+  update = function(state, inputs, dt)
+    state.time = state.time + dt
+    if state.time > 5.0 or inputs.a > 0 then
+      GameState.change(player_state)
+    end
+    state.slime.anim:update(dt)
+  end,
+  draw = function(state)
+    love.graphics.draw(state.splash, 0, 0)
+    state.slime.anim:draw(130, 80)
+  end,
+}
+
+player_state = GameState.new {
   enter = function()
     tiles = tiles or love.graphics.newImage("assets/tileset.png")
 
@@ -201,7 +225,7 @@ local player_state = GameState.new {
 
 function love.load()
   Renderer.load()
-  GameState.change(player_state)
+  GameState.change(splash_state)
 end
 
 function love.update(dt)
